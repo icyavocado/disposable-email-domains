@@ -16,11 +16,11 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
@@ -36,13 +36,9 @@ jobs:
       run: |
         git config --global user.email "actions@github.com"
         git config --global user.name "GitHub Action"
-        epoch_time=$(date +%s)
-        git checkout -b ghactions-$epoch_time
-        git add .
-        git commit -m "Automated changes" || exit 0
-        git push origin ghactions-$epoch_time
+        git diff --quiet && git diff --staged --quiet || (echo "There are changes"; epoch_time=$(date +%s); git checkout -b actions-$epoch_time; git add .; git commit -m "Automated changes"; git push origin actions-$epoch_time)
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v3
+      uses: peter-evans/create-pull-request@v6
       with:
         title: Automated changes
         body: This is an auto-generated PR with changes made by the GitHub Action.
